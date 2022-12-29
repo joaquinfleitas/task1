@@ -1,10 +1,11 @@
-
 let homejs = document.getElementById("image-card")
 
 function craftCards(lista, descriptionCards){
     let imagenes = ""
     for (let walk of lista.events){
-            let template =  `
+        if(walk.date <= data.currentDate){
+            let template =  
+                `
                 <div class="card" style="width: 16rem;">
                 <img src="${walk.image}" class="card-img-top" alt="${walk.name}">
                     <div class="card-body">
@@ -17,8 +18,8 @@ function craftCards(lista, descriptionCards){
                 </div>
                 </div> `
     imagenes =  imagenes + template
+        }
     }
     descriptionCards.innerHTML = imagenes
-    console.log(imagenes)
 }
 craftCards(data, homejs)
