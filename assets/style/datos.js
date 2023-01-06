@@ -1,6 +1,3 @@
-/* let todosLosEventos = []
-let pastEvents = []
-let upcomingEvents = [] */
 
 const data = {
     "currentDate": "2022-01-01",
