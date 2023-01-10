@@ -1,14 +1,22 @@
-let cadenaParametroUrl = location.search
-let parametros = new URLSearchParams(cadenaParametroUrl)
-let idCard = parametros.get("idUrl")
+let cadenaParametroUrl = location.search //trae el url como string
+let parametros = new URLSearchParams(cadenaParametroUrl) //agarra el string y lo convierte a objeto
+let idCard = parametros.get("idUrl") //id que se usa para filtrar cada carta
+
+let globalData;
+fetch("https://mindhub-xj03.onrender.com/api/amazing")
+.then(data => data.json())
+.then(data=>{ 
+globalData = data
+pintarCard(globalData.events.find(globalData => globalData._id == idCard), contenedor)
+})
+.catch(error => console.log(error))
+
 
 let contenedor = document.getElementById("details-image")
 
-let walk = data.events
 
-let cardEncontrada = walk.find(walk => walk._id == idCard)
 
-function pintarCard(walk){
+function pintarCard(walk, contenedor){
     contenedor.innerHTML = ""
     let template = `
     <div class="row g-0">
@@ -30,5 +38,3 @@ function pintarCard(walk){
 
     contenedor.innerHTML = template
 }
-
-pintarCard(cardEncontrada)

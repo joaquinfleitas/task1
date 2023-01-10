@@ -117,11 +117,12 @@ footer {
     flex-wrap: wrap;
 }
 
-.table {
+.table-stats {
     border-collapse: collapse;
     display: flex;
     flex-direction: column;
     align-items: center;
+    text-align: center;
 }
 
 

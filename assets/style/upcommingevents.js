@@ -1,8 +1,23 @@
-
 let homejs = document.getElementById("image-card")
 const search = document.getElementById('search1')
 const check = document.getElementById("checkbox3")
-const upcoming = data.events.filter( upcom => upcom.date >= data.currentDate )
+
+let globalHome;
+
+let upcoming 
+
+fetch("https://mindhub-xj03.onrender.com/api/amazing")
+.then(data => data.json())
+.then(data=>{ 
+    globalHome = data
+    upcoming = globalHome.events.filter( upcom => upcom.date >= globalHome.currentDate)
+    renderTemplate (craftCards(upcoming), homejs)
+    check.innerHTML = generarCheckbox(globalHome.events)
+    check.addEventListener('change', filtroCruzado)
+    search.addEventListener( 'input', filtroCruzado)
+})
+.catch(error => console.log(error))
+
 
 function craftCards(lista){
     let imagenes = ""
@@ -21,20 +36,13 @@ function craftCards(lista){
         }
     return imagenes
 }
-renderTemplate (craftCards(upcoming), homejs)
+ //es la funcion de ubicacion
 
 //Funcion para filtrar categorias
 
-const sinRepetir = []
-const categorias = upcoming.map(events => events.category)
-
-categorias.forEach(categorias => {
-    if (!sinRepetir.includes (categorias)){
-        sinRepetir.push (categorias)}
-    })
-    
 //Creacion de los botones checkbox
-    function generarCheckbox (categorias){
+    function generarCheckbox (infoData){
+        const categorias = new Set(infoData.map(eventInfo => eventInfo.category))
         let template = ""
         categorias.forEach(categoria =>{
             template += `<div class="form-check d-flex">   
@@ -45,9 +53,8 @@ categorias.forEach(categorias => {
         })
         return template
     }
-    check.innerHTML = generarCheckbox(sinRepetir)
+    //check.innerHTML = generarCheckbox(sinRepetir)
     //inner para pasar checks a pantaia
-    let checkbuttons = document.querySelectorAll(".form-check-input")
     //funcion para el filtro de los check
     function checkFilter (touchs, categoriesList){
         let values = [];
@@ -55,30 +62,29 @@ categorias.forEach(categorias => {
             if (touch.checked)
             values.push(touch.value.toLowerCase())
         }
-        let filters = categoriesList.filter(food => values.includes(food.category.toLowerCase()))
-        if (values.length === 0){
+
+        let filters = categoriesList.filter(eventoValue => values.includes(eventoValue.category.toLowerCase())) //includes comprueba si cumple su categoria(value filtrado)
+        if (values.length === 0){  //compara el value de los checkbox con la categoria de las cards
             return categoriesList
         }
         else{
             return filters
         }
-    }
-    check.addEventListener('change', filtroCruzado)
-    
+    }    
 //funcion para el filtro del search
-search.addEventListener( 'input', filtroCruzado)
 
-function searchFood(inputFind, categoriesList){
-    const filterFood = categoriesList.filter(food => {
-        return food.name.toLowerCase().startsWith(inputFind.value.toLowerCase())
+function searchBar(inputFind, categoriesList){
+    const filterFood = categoriesList.filter(eventFilter => {
+        return eventFilter.name.toLowerCase().startsWith(inputFind.value.toLowerCase()) //compara la primer letra(startswith) del input (buscador) con la primer letra de todos los name y si coinciden (true) la filtra(true)
     });
-    return filterFood
+    return filterFood // return devuelve todos los true
 }
 // funcion del filtro cruzado
 function filtroCruzado(evento){
-    const filterPerFind = searchFood (search, upcoming)
+    let checkbuttons = document.querySelectorAll(".form-check-input")
+    const filterPerFind = searchBar (search, upcoming)
     const filterPerCheck = checkFilter (checkbuttons, filterPerFind)
-    if(filterPerCheck.length === 0) {
+    if(filterPerCheck.length === 0) {       //length nos devuelve un numero
         let alert = `<h3 class="alert">THERES NO COICIDENCES WITH YOUR SEARCH</h3>`
         renderTemplate(alert, homejs)
     }
@@ -91,5 +97,4 @@ function renderTemplate(template, ubicacion){
     ubicacion.innerHTML = template
 }
 
-filtroCruzado()
 

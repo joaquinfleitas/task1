@@ -1,7 +1,22 @@
 let homejs = document.getElementById("image-card")
 const search = document.getElementById('search1')
 const check = document.getElementById("checkbox3")
-const pastEvent = data.events.filter( past => past.date <= data.currentDate )
+
+let globalHome;
+
+let pastEvent 
+
+fetch("https://mindhub-xj03.onrender.com/api/amazing")
+.then(data => data.json())
+.then(data=>{ 
+    globalHome = data
+    pastEvent = globalHome.events.filter( past => past.date <= globalHome.currentDate)
+    renderTemplate (craftCards(pastEvent), homejs)
+    check.innerHTML = generarCheckbox(globalHome.events)
+    check.addEventListener('change', filtroCruzado)
+    search.addEventListener( 'input', filtroCruzado)
+})
+.catch(error => console.log(error))
 
 
 function craftCards(lista){
@@ -21,20 +36,11 @@ function craftCards(lista){
     }
     return imagenes
 }
-renderTemplate (craftCards(pastEvent), homejs)
+//renderTemplate (craftCards(pastEvent), homejs)
 
-//Funcion para filtrar categorias
-
-const sinRepetir = []
-const categorias = pastEvent.map(events => events.category)
-
-categorias.forEach(categorias => {
-    if (!sinRepetir.includes (categorias)){
-        sinRepetir.push (categorias)}
-    })
-    
 //Creacion de los botones checkbox
-    function generarCheckbox (categorias){
+    function generarCheckbox (infoData){
+        const categorias = new Set(infoData.map(eventInfo => eventInfo.category))
         let template = ""
         categorias.forEach(categoria =>{
             template += `<div class="form-check d-flex">   
@@ -45,7 +51,6 @@ categorias.forEach(categorias => {
         })
         return template
     }
-    check.innerHTML = generarCheckbox(sinRepetir)
     
     //funcion para el filtro de los check
     function checkFilter (touchs, categoriesList){
@@ -54,7 +59,7 @@ categorias.forEach(categorias => {
             if (touch.checked)
             values.push(touch.value.toLowerCase())
         }
-        let filters = categoriesList.filter(food => values.includes(food.category.toLowerCase()))
+        let filters = categoriesList.filter(eventoValue => values.includes(eventoValue.category.toLowerCase()))
         if (values.length === 0){
             return categoriesList
         }
@@ -62,21 +67,19 @@ categorias.forEach(categorias => {
             return filters
         }
     }
-    check.addEventListener('change', filtroCruzado)
     
 //funcion para el filtro del search
-search.addEventListener( 'input', filtroCruzado)
 
-function searchFood(inputFind, categoriesList){
-    const filterFood = categoriesList.filter(food => {
-        return food.name.toLowerCase().startsWith(inputFind.value.toLowerCase())
+function searchBar(inputFind, categoriesList){
+    const filterFood = categoriesList.filter(eventFilter => {
+        return eventFilter.name.toLowerCase().startsWith(inputFind.value.toLowerCase())
     });
     return filterFood
 }
 // funcion del filtro cruzado
 function filtroCruzado(evento){
     let checkbuttons = document.querySelectorAll(".form-check-input")
-    const filterPerFind = searchFood (search, pastEvent)
+    const filterPerFind = searchBar (search, pastEvent)
     const filterPerCheck = checkFilter (checkbuttons, filterPerFind)
     if(filterPerCheck.length === 0) {
         let alert = `<h3 class="alert">THERES NO COICIDENCES WITH YOUR SEARCH</h3>`
@@ -91,4 +94,3 @@ function renderTemplate(template, ubicacion){
     ubicacion.innerHTML = template
 }
 
-filtroCruzado()
